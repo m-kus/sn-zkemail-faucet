@@ -51,7 +51,7 @@ const ProofGenerator = () => {
         let emailInputs = await generateEmailVerifierInputs(fileContent, {
           extractFrom: true,
           extractTo: true,
-          maxHeadersLength: 1024,
+          maxHeadersLength: 768,
           maxBodyLength: 65536,
         });
         
