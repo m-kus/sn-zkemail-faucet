@@ -32,11 +32,10 @@ This will launch the application in your default web browser at [http://localhos
 
 1. Drag and drop an .eml file onto the dropzone, or click the dropzone to select a file from your system.
 2. The application will guide you through the proof generation process with a visual progress indicator.
-3. The process consists of four stages:
-   - Email file provided
-   - Email parsed
-   - Witness generated
-   - Proof generated
+3. The process consists of three stages:
+   - Parsing Email - Extracting and verifying email contents
+   - Generating Witness - Preparing verification data
+   - Generating Proof - Creating the zero-knowledge proof
 4. Upon successful proof generation, you can create a pre-funded account.
 
 ## Browser Compatibility
@@ -45,6 +44,13 @@ This application uses the `@zk-email/zkemail-nr` library which primarily targets
 
 1. `react-app-rewired` to customize webpack configuration
 2. Node.js polyfills for various core modules (crypto, stream, path, etc.)
+
+## Technologies Used
+
+- [React](https://reactjs.org/) for the UI
+- [react-dropzone](https://react-dropzone.js.org/) for drag-and-drop functionality
+- [@zk-email/zkemail-nr](https://www.npmjs.com/package/@zk-email/zkemail-nr) for email parsing and ZK proof generation
+- [@noir-lang/noir_js](https://noir-lang.org/) for executing Noir circuits
 
 ## ZK Email Integration
 

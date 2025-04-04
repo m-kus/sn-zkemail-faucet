@@ -10,7 +10,10 @@ module.exports = function override(config) {
     stream: require.resolve('stream-browserify'),
     timers: require.resolve('timers-browserify'),
     assert: require.resolve('assert'),
-    process: require.resolve('process')
+    process: require.resolve('process'),
+    vm: require.resolve('vm-browserify'),
+    os: require.resolve('os-browserify'),
+    'process/browser': require.resolve('process/browser')
   };
 
   // Force using the ES Module version of psl

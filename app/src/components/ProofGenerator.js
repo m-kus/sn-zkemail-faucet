@@ -1,19 +1,31 @@
 import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { generateEmailVerifierInputs } from '@zk-email/zkemail-nr'
+import { Noir } from "@noir-lang/noir_js";
+import { UltraHonkBackend } from "@aztec/bb.js";
+import circuit from '../circuit/proof_of_invite.json'
 import './ProofGenerator.css';
 
 const STAGES = {
   INITIAL: 0,
-  FILE_PROVIDED: 1,
-  FILE_PARSED: 2,
-  WITNESS_GENERATED: 3,
-  PROOF_GENERATED: 4
+  PARSING_EMAIL: 1,
+  GENERATING_WITNESS: 2,
+  GENERATING_PROOF: 3,
+  PROOF_COMPLETE: 4
 };
 
 const ProofGenerator = () => {
   const [error, setError] = useState(null);
   const [currentStage, setCurrentStage] = useState(STAGES.INITIAL);
+
+  const moveToNextStage = (stage) => {
+    setCurrentStage(stage);
+  };
+
+  const resetProcess = () => {
+    setCurrentStage(STAGES.INITIAL);
+    setError(null);
+  };
 
   const onDrop = useCallback(acceptedFiles => {
     if (acceptedFiles.length === 0) return;
@@ -26,8 +38,8 @@ const ProofGenerator = () => {
       return;
     }
     
-    // Update to file provided stage
-    setCurrentStage(STAGES.FILE_PROVIDED);
+    // Start parsing immediately
+    moveToNextStage(STAGES.PARSING_EMAIL);
     setError(null);
     
     const reader = new FileReader();
@@ -35,36 +47,35 @@ const ProofGenerator = () => {
       try {
         const fileContent = reader.result;
 
-        console.log(fileContent);
-
-        // Parse the email file (we're still at FILE_PROVIDED stage during parsing)
+        // Parse the email file
         let emailInputs = await generateEmailVerifierInputs(fileContent, {
+          extractFrom: true,
+          extractTo: true,
+          maxHeadersLength: 1024,
           maxBodyLength: 65536,
         });
         
-        console.log(emailInputs);
+        // Move to witness generation stage
+        moveToNextStage(STAGES.GENERATING_WITNESS);
+
+        let noir = new Noir(circuit);
+        let execResult = await noir.execute(emailInputs);
+
+        // Move to proof generation stage
+        moveToNextStage(STAGES.GENERATING_PROOF);
+
+        let honk = new UltraHonkBackend(circuit.bytecode, { threads: 1 });
+        let proof = await honk.generateProof(execResult.witness, { keccak: true });
         
-        // Now update to file parsed stage after successful parsing
-        setCurrentStage(STAGES.FILE_PARSED);
-        
-        // Simulate witness generation
-        setTimeout(() => {
-          setCurrentStage(STAGES.WITNESS_GENERATED);
-          
-          // Simulate proof generation after another delay
-          setTimeout(() => {
-            setCurrentStage(STAGES.PROOF_GENERATED);
-          }, 2000);
-        }, 2000);
+        // Proof is complete and successful
+        moveToNextStage(STAGES.PROOF_COMPLETE);
       } catch (err) {
         console.error('Error processing file:', err);
-        setError(`Failed to parse the email file: ${err.message}. Check console for details.`);
-        // Don't reset the stage automatically
+        setError(`Failed to process the email file: ${err.message}. Check console for details.`);
       }
     };
     reader.onerror = () => {
       setError('Failed to read the file');
-      // Don't reset the stage automatically
     };
     reader.readAsText(file);
   }, []);
@@ -103,73 +114,60 @@ const ProofGenerator = () => {
           <h3>Generating Proof of Registration</h3>
           
           <div className="progress-steps">
-            <div className={`progress-step ${currentStage >= STAGES.FILE_PROVIDED ? 'active' : ''} ${currentStage > STAGES.FILE_PROVIDED ? 'completed' : ''}`}>
+            <div className={`progress-step ${currentStage >= STAGES.PARSING_EMAIL ? 'active' : ''} ${currentStage > STAGES.PARSING_EMAIL ? 'completed' : ''}`}>
               <div className="step-indicator">
-                {currentStage > STAGES.FILE_PROVIDED ? (
+                {currentStage > STAGES.PARSING_EMAIL ? (
                   <span className="check-icon">✓</span>
-                ) : currentStage === STAGES.FILE_PROVIDED ? (
+                ) : currentStage === STAGES.PARSING_EMAIL ? (
                   <div className="step-spinner"></div>
                 ) : (
                   <span className="step-number">1</span>
                 )}
               </div>
               <div className="step-content">
-                <p className="step-title">Email File Provided</p>
-                <p className="step-description">Your .eml file has been uploaded</p>
+                <p className="step-title">Parsing Email</p>
+                <p className="step-description">Extracting email contents and verifying signatures</p>
               </div>
             </div>
             
-            <div className={`progress-step ${currentStage >= STAGES.FILE_PARSED ? 'active' : ''} ${currentStage > STAGES.FILE_PARSED ? 'completed' : ''}`}>
+            <div className={`progress-step ${currentStage >= STAGES.GENERATING_WITNESS ? 'active' : ''} ${currentStage > STAGES.GENERATING_WITNESS ? 'completed' : ''}`}>
               <div className="step-indicator">
-                {currentStage > STAGES.FILE_PARSED ? (
+                {currentStage > STAGES.GENERATING_WITNESS ? (
                   <span className="check-icon">✓</span>
-                ) : currentStage === STAGES.FILE_PARSED ? (
+                ) : currentStage === STAGES.GENERATING_WITNESS ? (
                   <div className="step-spinner"></div>
                 ) : (
                   <span className="step-number">2</span>
                 )}
               </div>
               <div className="step-content">
-                <p className="step-title">Email Parsed</p>
-                <p className="step-description">Email contents extracted and verified</p>
+                <p className="step-title">Generating Witness</p>
+                <p className="step-description">Preparing verification data</p>
               </div>
             </div>
             
-            <div className={`progress-step ${currentStage >= STAGES.WITNESS_GENERATED ? 'active' : ''} ${currentStage > STAGES.WITNESS_GENERATED ? 'completed' : ''}`}>
+            <div className={`progress-step ${currentStage >= STAGES.GENERATING_PROOF ? 'active' : ''} ${currentStage > STAGES.GENERATING_PROOF ? 'completed' : ''}`}>
               <div className="step-indicator">
-                {currentStage > STAGES.WITNESS_GENERATED ? (
+                {currentStage > STAGES.GENERATING_PROOF ? (
                   <span className="check-icon">✓</span>
-                ) : currentStage === STAGES.WITNESS_GENERATED ? (
+                ) : currentStage === STAGES.GENERATING_PROOF ? (
                   <div className="step-spinner"></div>
                 ) : (
                   <span className="step-number">3</span>
                 )}
               </div>
               <div className="step-content">
-                <p className="step-title">Witness Generated</p>
-                <p className="step-description">Preparing verification data</p>
-              </div>
-            </div>
-            
-            <div className={`progress-step ${currentStage >= STAGES.PROOF_GENERATED ? 'active' : ''} ${currentStage > STAGES.PROOF_GENERATED ? 'completed' : ''}`}>
-              <div className="step-indicator">
-                {currentStage > STAGES.PROOF_GENERATED ? (
-                  <span className="check-icon">✓</span>
-                ) : currentStage === STAGES.PROOF_GENERATED ? (
-                  <div className="step-spinner"></div>
-                ) : (
-                  <span className="step-number">4</span>
-                )}
-              </div>
-              <div className="step-content">
-                <p className="step-title">Proof Generated</p>
-                <p className="step-description">Zero-knowledge proof created</p>
+                <p className="step-title">Generating Proof</p>
+                <p className="step-description">Creating zero-knowledge proof</p>
               </div>
             </div>
           </div>
           
-          {currentStage === STAGES.PROOF_GENERATED && (
+          {currentStage === STAGES.PROOF_COMPLETE && (
             <div className="success-container">
+              <div className="success-message">
+                <p>✅ Proof generated successfully!</p>
+              </div>
               <button className="cta-button">Create Pre-funded Account</button>
             </div>
           )}
@@ -179,12 +177,20 @@ const ProofGenerator = () => {
               <p>{error}</p>
               <button 
                 className="reset-button" 
-                onClick={() => {
-                  setCurrentStage(STAGES.INITIAL);
-                  setError(null);
-                }}
+                onClick={resetProcess}
               >
-                Try Again
+                Start Over
+              </button>
+            </div>
+          )}
+          
+          {!error && currentStage !== STAGES.PROOF_COMPLETE && currentStage !== STAGES.INITIAL && (
+            <div className="start-over-container">
+              <button 
+                className="start-over-button" 
+                onClick={resetProcess}
+              >
+                Start Over
               </button>
             </div>
           )}

@@ -1,10 +1,11 @@
 use std::{collections::bounded_vec::BoundedVec, hash::pedersen_hash};
 use zkemail::{
-    dkim::RSAPubkey, headers::email_address::get_email_address, KEY_LIMBS_2048,
-    MAX_EMAIL_ADDRESS_LENGTH, Sequence,
+    dkim::RSAPubkey, headers::email_address::get_email_address, Sequence,
 };
 
-global MAX_EMAIL_HEADER_LENGTH: u32 = 512;
+global MAX_EMAIL_HEADER_LENGTH: u32 = 1024;
+global MAX_EMAIL_ADDRESS_LENGTH: u32 = 320;
+global KEY_LIMBS_2048: u32 = 18;
 
 /**
  * Verify an arbitrary email signed by a 2048-bit RSA DKIM signature and extract sender and recipient addresses
