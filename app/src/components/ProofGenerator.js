@@ -96,7 +96,8 @@ const ProofGenerator = () => {
 
         let honk = new UltraHonkBackend(circuit.bytecode, { threads: 1 });
         let proof = await honk.generateProof(execResult.witness, { keccak: true });
-        
+        honk.destroy();
+
         // Move to transaction building stage
         moveToNextStage(STAGES.BUILDING_TRANSACTION);
 
@@ -113,8 +114,9 @@ const ProofGenerator = () => {
           0 // HonkFlavor.KECCAK
         );
 
-        console.log(callData);
-        
+        const felts = `[${callData.map(bi => bi.toString(10)).join(', ')}]`;
+        console.log(felts);
+
         // Proof is complete and successful
         moveToNextStage(STAGES.PROOF_COMPLETE);
       } catch (err) {
@@ -149,9 +151,9 @@ const ProofGenerator = () => {
           <input {...getInputProps()} />
           <div className="dropzone-content">
             {isDragActive ? (
-              <p>Drop the Lu.ma email here...</p>
+              <p>Drop the Luma event approval email here...</p>
             ) : (
-              <p>Drag and drop your Lu.ma event approval email (.eml file), or click to select</p>
+              <p>Drag and drop your Luma event approval email (.eml file), or click to select</p>
             )}
           </div>
         </div>

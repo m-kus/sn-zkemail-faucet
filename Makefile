@@ -1,10 +1,10 @@
 install-noir:
 	curl -L https://raw.githubusercontent.com/noir-lang/noirup/refs/heads/main/install | bash
-	noirup --version 1.0.0-beta.1
+	noirup --version 1.0.0-beta.2
 
 install-barretenberg:
 	curl -L https://raw.githubusercontent.com/AztecProtocol/aztec-packages/refs/heads/master/barretenberg/bbup/install | bash
-	bbup --version 0.67.0
+	bbup --version 0.82.2
 
 install-scarb:
 	curl --proto '=https' --tlsv1.2 -sSf https://docs.swmansion.com/scarb/install.sh | sh -s -- -v 2.9.2
@@ -14,7 +14,7 @@ install-snfoundry:
 	snfoundryup
 
 install-garaga:
-	pip install garaga
+	pip install garaga==0.16.0
 
 install: install-noir install-barretenberg install-scarb install-snfoundry install-garaga
 
@@ -23,7 +23,7 @@ build-circuit:
 	cp ./circuit/target/proof_of_invite.json ./app/src/circuit/proof_of_invite.json
 
 gen-vk:
-	bb write_vk_ultra_keccak_honk -b ./circuit/target/proof_of_invite.json -o ./circuit/target/vk
+	bb write_vk --scheme ultra_honk --oracle_hash keccak -b ./circuit/target/proof_of_invite.json -o ./circuit/target
 	cp ./circuit/target/vk ./app/public/vk.bin
 
 gen-contract:

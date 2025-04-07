@@ -1,7 +1,7 @@
 use super::honk_verifier_circuits::{
-    run_BN254_EVAL_FN_CHALLENGE_SING_54P_RLC_circuit,
-    run_GRUMPKIN_HONK_PREP_MSM_SCALARS_SIZE_18_circuit,
-    run_GRUMPKIN_HONK_SUMCHECK_SIZE_18_PUB_323_circuit,
+    run_BN254_EVAL_FN_CHALLENGE_SING_53P_RLC_circuit,
+    run_GRUMPKIN_HONK_PREP_MSM_SCALARS_SIZE_17_circuit,
+    run_GRUMPKIN_HONK_SUMCHECK_SIZE_17_PUB_323_circuit,
 };
 use super::honk_verifier_constants::{precomputed_lines, vk};
 
@@ -32,9 +32,9 @@ pub mod UltraKeccakHonkVerifier {
     };
     use garaga::utils::noir::{G2_POINT_KZG_1, G2_POINT_KZG_2, HonkProof};
     use super::{
-        precomputed_lines, run_BN254_EVAL_FN_CHALLENGE_SING_54P_RLC_circuit,
-        run_GRUMPKIN_HONK_PREP_MSM_SCALARS_SIZE_18_circuit,
-        run_GRUMPKIN_HONK_SUMCHECK_SIZE_18_PUB_323_circuit, vk,
+        precomputed_lines, run_BN254_EVAL_FN_CHALLENGE_SING_53P_RLC_circuit,
+        run_GRUMPKIN_HONK_PREP_MSM_SCALARS_SIZE_17_circuit,
+        run_GRUMPKIN_HONK_SUMCHECK_SIZE_17_PUB_323_circuit, vk,
     };
 
     #[storage]
@@ -49,7 +49,9 @@ pub mod UltraKeccakHonkVerifier {
     }
 
     #[embeddable_as(UltraKeccakHonkVerifier)]
-    impl IUltraKeccakHonkVerifier<TContractState, +HasComponent<TContractState>> of super::IUltraKeccakHonkVerifier<ComponentState<TContractState>> {
+    pub impl IUltraKeccakHonkVerifierImpl<
+        TContractState, +HasComponent<TContractState>,
+    > of super::IUltraKeccakHonkVerifier<ComponentState<TContractState>> {
         fn verify_ultra_keccak_honk_proof(
             self: @ComponentState<TContractState>, full_proof_with_hints: Span<felt252>,
         ) -> Option<Span<u256>> {
@@ -66,7 +68,7 @@ pub mod UltraKeccakHonkVerifier {
                 KeccakHasherState,
             >(vk.circuit_size, vk.public_inputs_size, vk.public_inputs_offset, full_proof.proof);
             let log_n = vk.log_circuit_size;
-            let (sum_check_rlc, honk_check) = run_GRUMPKIN_HONK_SUMCHECK_SIZE_18_PUB_323_circuit(
+            let (sum_check_rlc, honk_check) = run_GRUMPKIN_HONK_SUMCHECK_SIZE_17_PUB_323_circuit(
                 p_public_inputs: full_proof.proof.public_inputs,
                 p_public_inputs_offset: vk.public_inputs_offset.into(),
                 sumcheck_univariates_flat: full_proof
@@ -137,10 +139,9 @@ pub mod UltraKeccakHonkVerifier {
                 scalar_54,
                 scalar_55,
                 scalar_56,
-                scalar_57,
                 scalar_68,
             ) =
-                run_GRUMPKIN_HONK_PREP_MSM_SCALARS_SIZE_18_circuit(
+                run_GRUMPKIN_HONK_PREP_MSM_SCALARS_SIZE_17_circuit(
                 p_sumcheck_evaluations: full_proof.proof.sumcheck_evaluations,
                 p_gemini_a_evaluations: full_proof.proof.gemini_a_evaluations,
                 tp_gemini_r: transcript.gemini_r.into(),
@@ -249,20 +250,19 @@ pub mod UltraKeccakHonkVerifier {
                 into_u256_unchecked(scalar_54),
                 into_u256_unchecked(scalar_55),
                 into_u256_unchecked(scalar_56),
-                into_u256_unchecked(scalar_57),
                 into_u256_unchecked(scalar_68),
                 transcript.shplonk_z.into(),
             ]
                 .span();
 
-            full_proof.msm_hint_batched.RLCSumDlogDiv.validate_degrees_batched(54);
+            full_proof.msm_hint_batched.RLCSumDlogDiv.validate_degrees_batched(53);
             // HASHING: GET ECIP BASE RLC COEFF.
             // TODO : RE-USE transcript to avoid re-hashing G1 POINTS.
             let (s0, s1, s2): (felt252, felt252, felt252) = hades_permutation(
                 'MSM_G1', 0, 1,
             ); // Init Sponge state
             let (s0, s1, s2) = hades_permutation(
-                s0 + 0.into(), s1 + 54.into(), s2,
+                s0 + 0.into(), s1 + 53.into(), s2,
             ); // Include curve_index and msm size
 
             let mut s0 = s0;
@@ -344,12 +344,12 @@ pub mod UltraKeccakHonkVerifier {
                 ),
             ];
 
-            let (lhs_fA0) = run_BN254_EVAL_FN_CHALLENGE_SING_54P_RLC_circuit(
+            let (lhs_fA0) = run_BN254_EVAL_FN_CHALLENGE_SING_53P_RLC_circuit(
                 A: random_point,
                 coeff: mb.coeff0,
                 SumDlogDivBatched: full_proof.msm_hint_batched.RLCSumDlogDiv,
             );
-            let (lhs_fA2) = run_BN254_EVAL_FN_CHALLENGE_SING_54P_RLC_circuit(
+            let (lhs_fA2) = run_BN254_EVAL_FN_CHALLENGE_SING_53P_RLC_circuit(
                 A: G1Point { x: mb.x_A2, y: mb.y_A2 },
                 coeff: mb.coeff2,
                 SumDlogDivBatched: full_proof.msm_hint_batched.RLCSumDlogDiv,

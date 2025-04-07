@@ -6,15 +6,15 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>Lu.ma Event Registration Verifier</h1>
-        <p>Create a pre-funded account by proving you have an approval email from Lu.ma</p>
+        <h1>Luma Event Registration Verifier</h1>
+        <p>Create a pre-funded account by proving you have an approval email from Luma</p>
       </header>
       <main>
         <div className="container">
           <div className="info-section">
             <h2>How it works</h2>
             <ol>
-              <li>Drag and drop your Lu.ma event approval email (.eml file)</li>
+              <li>Drag and drop your Luma event approval email (.eml file)</li>
               <li>Our app will generate a zero-knowledge proof of your registration</li>
               <li>Your pre-funded account will be created automatically</li>
             </ol>

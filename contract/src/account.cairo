@@ -6,14 +6,16 @@ trait IAccount<TContractState> {
     fn __execute__(ref self: TContractState, calls: Array<Call>) -> Array<Span<felt252>>;
     fn __validate_declare__(self: @TContractState, class_hash: felt252) -> felt252;
     fn __validate_deploy__(
-        self: @TContractState, class_hash: felt252, contract_address_salt: felt252
+        self: @TContractState, class_hash: felt252, contract_address_salt: felt252,
     );
 }
 
 #[starknet::contract(account)]
 mod FaucetAccount {
-    use starknet::{account::Call, get_execution_info, contract_address::ContractAddress, TxInfo};
     use core::num::traits::Zero;
+    use starknet::account::Call;
+    use starknet::contract_address::ContractAddress;
+    use starknet::{TxInfo, get_execution_info};
     use crate::honk_verifier::UltraKeccakHonkVerifier;
 
     const TX_V1: felt252 = 1; // INVOKE
@@ -22,6 +24,8 @@ mod FaucetAccount {
     const TX_V3_ESTIMATE: felt252 = 0x100000000000000000000000000000000 + 3; // 2**128 + TX_V3
 
     component!(path: UltraKeccakHonkVerifier, storage: verifier, event: VerifierEvent);
+
+    impl VerifierImpl = UltraKeccakHonkVerifier::IUltraKeccakHonkVerifierImpl<ContractState>;
 
     #[storage]
     struct Storage {
@@ -40,10 +44,15 @@ mod FaucetAccount {
         fn __validate__(ref self: ContractState, calls: Array<Call>) -> felt252 {
             let exec_info = get_execution_info().unbox();
             let tx_info = exec_info.tx_info.unbox();
-            assert_only_protocol(exec_info.caller_address);
-            assert_invoke_version(tx_info.version);
+            //assert_only_protocol(exec_info.caller_address);
+            //assert_invoke_version(tx_info.version);
 
-            // TODO: verify the proof
+            assert(calls.len() == 1, 'expected single call');
+            let pub_inputs = self
+                .verifier
+                .verify_ultra_keccak_honk_proof(*calls[0].calldata)
+                .expect('invalid proof');
+            // TODO: assert single call, verify the proof, check the nullifier
 
             starknet::VALIDATED
         }
@@ -53,6 +62,9 @@ mod FaucetAccount {
             let tx_info = exec_info.tx_info.unbox();
             assert_only_protocol(exec_info.caller_address);
             assert_invoke_version(tx_info.version);
+
+            // TODO: send the funds, store the nullifier
+
             let retdata = ArrayTrait::new();
             retdata
         }
@@ -62,7 +74,7 @@ mod FaucetAccount {
         }
 
         fn __validate_deploy__(
-            self: @ContractState, class_hash: felt252, contract_address_salt: felt252
+            self: @ContractState, class_hash: felt252, contract_address_salt: felt252,
         ) {}
     }
 
@@ -76,24 +88,33 @@ mod FaucetAccount {
                 || tx_version == TX_V3
                 || tx_version == TX_V1_ESTIMATE
                 || tx_version == TX_V3_ESTIMATE,
-            'unexpected tx version'
+            'unexpected tx version',
         );
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::IAccountDispatcherTrait;
     use core::result::ResultTrait;
-    use snforge_std::{declare, ContractClassTrait, ContractClass};
-    use super::{FaucetAccount, IAccountDispatcher};
+    use snforge_std::fs::{FileTrait, read_txt};
+    use snforge_std::{ContractClass, ContractClassTrait, DeclareResult, declare};
+    use starknet::account::Call;
+    use super::{IAccountDispatcher, IAccountDispatcherTrait};
 
     #[test]
-    fn test_group_account() {
-        let contract: ContractClass = declare("FaucetAccount").unwrap();
+    fn test_validate() {
+        let contract: ContractClass = match declare("FaucetAccount").unwrap() {
+            DeclareResult::Success(contract) => contract,
+            DeclareResult::AlreadyDeclared(contract) => contract,
+        };
         let (contract_address, _) = contract.deploy(@array![]).unwrap();
 
         let dispatcher = IAccountDispatcher { contract_address };
-        assert_eq!(dispatcher.__validate__(array![]), starknet::VALIDATED);
+
+        let file = FileTrait::new("tests/data/calldata.txt");
+        let calldata = read_txt(@file);
+
+        let call = Call { to: (1).try_into().unwrap(), selector: 0, calldata: calldata.span() };
+        assert_eq!(dispatcher.__validate__(array![call]), starknet::VALIDATED);
     }
 }
