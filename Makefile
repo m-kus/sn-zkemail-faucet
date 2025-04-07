@@ -32,5 +32,17 @@ gen-contract:
 build-contract:
 	cd contract && scarb build
 
+test-contract:
+	cd contract && snforge test --detailed-resources
+
+declare-contract:
+	cd contract && sncast declare --contract-name FaucetAccount
+
+deploy-contract:
+	cd contract && sncast deploy --class-hash 0x014ab309afb87a9cbbe4838ec28654eade8092a9eab9de54d76aa7705745c873
+
+invoke-contract:
+	python scripts/invoke.py contract/tests/data/calldata.txt 
+
 run-app:
 	cd app && npm start
