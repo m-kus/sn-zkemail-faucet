@@ -1,6 +1,6 @@
-# Starknet Lu.ma Proof Generator
+# Starknet Luma Proof Generator
 
-This project contains a React application for generating proofs from Lu.ma event emails. The application is located in the `app` directory.
+This project contains a React application for generating proofs from Luma event emails. The application is located in the `app` directory.
 
 ## Getting Started
 

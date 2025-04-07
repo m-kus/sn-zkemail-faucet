@@ -1,6 +1,6 @@
-# Lu.ma Proof Generator App
+# Luma Proof Generator App
 
-This is a React application that generates proofs of registration from Lu.ma event emails. Upload your event confirmation email and the app will generate a cryptographic proof through a step-by-step process.
+This is a React application that generates proofs of registration from Luma event emails. Upload your event confirmation email and the app will generate a cryptographic proof through a step-by-step process.
 
 ## Getting Started
 

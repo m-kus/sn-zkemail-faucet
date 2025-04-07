@@ -16,10 +16,10 @@ module.exports = function override(config) {
     'process/browser': require.resolve('process/browser')
   };
 
-  // Force using the ES Module version of psl
+  // Force using the ES Module version of packages
   config.resolve.alias = {
     ...config.resolve.alias,
-    // This forces webpack to use the ESM version of psl
+    // This forces webpack to use the ESM version of packages
     'psl': path.resolve(__dirname, 'node_modules/psl/dist/psl.mjs')
   };
 
@@ -31,6 +31,12 @@ module.exports = function override(config) {
     resolve: {
       fullySpecified: false
     }
+  });
+
+  // Add rule for binary files
+  config.module.rules.push({
+    test: /\.bin$/,
+    type: 'asset/resource'
   });
 
   // Add buffer and process polyfills

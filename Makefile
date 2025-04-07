@@ -19,10 +19,12 @@ install-garaga:
 install: install-noir install-barretenberg install-scarb install-snfoundry install-garaga
 
 build-circuit:
-	cd circuit && nargo --enable-brillig-constraints-check-lookback build
+	cd circuit && nargo build
+	cp ./circuit/target/proof_of_invite.json ./app/src/circuit/proof_of_invite.json
 
 gen-vk:
 	bb write_vk_ultra_keccak_honk -b ./circuit/target/proof_of_invite.json -o ./circuit/target/vk
+	cp ./circuit/target/vk ./app/public/vk.bin
 
 gen-contract:
 	garaga gen --system ultra_keccak_honk --vk circuit/target/vk --project-name contract

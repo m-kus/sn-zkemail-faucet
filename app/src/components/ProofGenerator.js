@@ -1,8 +1,10 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { generateEmailVerifierInputs } from '@zk-email/zkemail-nr'
 import { Noir } from "@noir-lang/noir_js";
-import { UltraHonkBackend } from "@aztec/bb.js";
+import { UltraHonkBackend, reconstructHonkProof } from "@aztec/bb.js";
+import { getHonkCallData, init, parseHonkProofFromBytes, parseHonkVerifyingKeyFromBytes } from 'garaga';
+import { flattenFieldsAsArray } from '../utils/bb_helpers';
 import circuit from '../circuit/proof_of_invite.json'
 import './ProofGenerator.css';
 
@@ -11,12 +13,34 @@ const STAGES = {
   PARSING_EMAIL: 1,
   GENERATING_WITNESS: 2,
   GENERATING_PROOF: 3,
-  PROOF_COMPLETE: 4
+  BUILDING_TRANSACTION: 4,
+  PROOF_COMPLETE: 5
 };
 
 const ProofGenerator = () => {
   const [error, setError] = useState(null);
   const [currentStage, setCurrentStage] = useState(STAGES.INITIAL);
+  const [vk, setVk] = useState(null);
+
+  useEffect(() => {
+    // Fetch the vk.bin file from the public directory
+    fetch('/vk.bin')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to load verification key');
+        }
+        return response.arrayBuffer();
+      })
+      .then(buffer => {
+        const vkData = new Uint8Array(buffer);
+        console.log('VK loaded successfully, length:', vkData.length);
+        setVk(vkData);
+      })
+      .catch(err => {
+        console.error('Error loading verification key:', err);
+        setError('Failed to load verification key. Please try again later.');
+      });
+  }, []);
 
   const moveToNextStage = (stage) => {
     setCurrentStage(stage);
@@ -35,6 +59,12 @@ const ProofGenerator = () => {
     // Check if file has .eml extension
     if (!file.name.toLowerCase().endsWith('.eml')) {
       setError('Please upload a file with .eml extension');
+      return;
+    }
+    
+    // Check if verification key is loaded
+    if (!vk) {
+      setError('Verification key is not loaded yet. Please try again in a moment.');
       return;
     }
     
@@ -67,6 +97,24 @@ const ProofGenerator = () => {
         let honk = new UltraHonkBackend(circuit.bytecode, { threads: 1 });
         let proof = await honk.generateProof(execResult.witness, { keccak: true });
         
+        // Move to transaction building stage
+        moveToNextStage(STAGES.BUILDING_TRANSACTION);
+
+        // Initialize wasm module
+        await init();
+
+        // Reconstruct the proof and get the call data
+        const rawProof = reconstructHonkProof(flattenFieldsAsArray(proof.publicInputs), proof.proof);
+        const honkProof = parseHonkProofFromBytes(rawProof);
+        const honkVk = parseHonkVerifyingKeyFromBytes(vk);
+        const callData = getHonkCallData(
+          honkProof,
+          honkVk,
+          0 // HonkFlavor.KECCAK
+        );
+
+        console.log(callData);
+        
         // Proof is complete and successful
         moveToNextStage(STAGES.PROOF_COMPLETE);
       } catch (err) {
@@ -78,7 +126,7 @@ const ProofGenerator = () => {
       setError('Failed to read the file');
     };
     reader.readAsText(file);
-  }, []);
+  }, [vk]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
     onDrop,
@@ -159,6 +207,22 @@ const ProofGenerator = () => {
               <div className="step-content">
                 <p className="step-title">Generating Proof</p>
                 <p className="step-description">Creating zero-knowledge proof</p>
+              </div>
+            </div>
+
+            <div className={`progress-step ${currentStage >= STAGES.BUILDING_TRANSACTION ? 'active' : ''} ${currentStage > STAGES.BUILDING_TRANSACTION ? 'completed' : ''}`}>
+              <div className="step-indicator">
+                {currentStage > STAGES.BUILDING_TRANSACTION ? (
+                  <span className="check-icon">✓</span>
+                ) : currentStage === STAGES.BUILDING_TRANSACTION ? (
+                  <div className="step-spinner"></div>
+                ) : (
+                  <span className="step-number">4</span>
+                )}
+              </div>
+              <div className="step-content">
+                <p className="step-title">Building Transaction</p>
+                <p className="step-description">Creating Starknet transaction data</p>
               </div>
             </div>
           </div>
