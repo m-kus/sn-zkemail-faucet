@@ -16,27 +16,27 @@ mod FaucetAccount {
     use starknet::account::Call;
     use starknet::contract_address::ContractAddress;
     use starknet::{TxInfo, get_execution_info};
-    use crate::honk_verifier::UltraKeccakHonkVerifier;
+    use crate::honk_verifier::UltraStarknetHonkVerifier;
 
     const TX_V1: felt252 = 1; // INVOKE
     const TX_V1_ESTIMATE: felt252 = 0x100000000000000000000000000000000 + 1; // 2**128 + TX_V1
     const TX_V3: felt252 = 3;
     const TX_V3_ESTIMATE: felt252 = 0x100000000000000000000000000000000 + 3; // 2**128 + TX_V3
 
-    component!(path: UltraKeccakHonkVerifier, storage: verifier, event: VerifierEvent);
+    component!(path: UltraStarknetHonkVerifier, storage: verifier, event: VerifierEvent);
 
-    impl VerifierImpl = UltraKeccakHonkVerifier::IUltraKeccakHonkVerifierImpl<ContractState>;
+    impl VerifierImpl = UltraStarknetHonkVerifier::IUltraStarknetHonkVerifierImpl<ContractState>;
 
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        verifier: UltraKeccakHonkVerifier::Storage,
+        verifier: UltraStarknetHonkVerifier::Storage,
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
-        VerifierEvent: UltraKeccakHonkVerifier::Event,
+        VerifierEvent: UltraStarknetHonkVerifier::Event,
     }
 
     #[abi(embed_v0)]
@@ -50,7 +50,7 @@ mod FaucetAccount {
             assert(calls.len() == 1, 'expected single call');
             let pub_inputs = self
                 .verifier
-                .verify_ultra_keccak_honk_proof(*calls[0].calldata)
+                .verify_ultra_starknet_honk_proof(*calls[0].calldata)
                 .expect('invalid proof');
             // TODO: assert single call, verify the proof, check the nullifier
 

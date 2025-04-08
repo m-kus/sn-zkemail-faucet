@@ -3,15 +3,15 @@ use super::honk_verifier_constants::{vk, precomputed_lines};
 use super::honk_verifier_circuits::{run_GRUMPKIN_HONK_SUMCHECK_SIZE_5_PUB_1_circuit, run_GRUMPKIN_HONK_PREP_MSM_SCALARS_SIZE_5_circuit, run_BN254_EVAL_FN_CHALLENGE_SING_41P_RLC_circuit};
 
 #[starknet::interface]
-trait IUltraKeccakHonkVerifier<TContractState> {
-    fn verify_ultra_keccak_honk_proof(
+trait IUltraStarknetHonkVerifier<TContractState> {
+    fn verify_ultra_starknet_honk_proof(
         self: @TContractState,
         full_proof_with_hints: Span<felt252>,
     ) -> Option<Span<u256>>;
 }
 
 #[starknet::component]
-pub mod UltraKeccakHonkVerifier {
+pub mod UltraStarknetHonkVerifier {
     use garaga::definitions::{G1Point, G1G2Pair, BN254_G1_GENERATOR, get_a, get_modulus};
     use garaga::pairing_check::{multi_pairing_check_bn254_2P_2F, MPCheckHintBN254};
     use garaga::ec_ops::{G1PointTrait, ec_safe_add,FunctionFeltTrait, DerivePointFromXHint, MSMHint, compute_rhs_ecip, derive_ec_point_from_X, SlopeInterceptOutput};
@@ -20,7 +20,7 @@ pub mod UltraKeccakHonkVerifier {
     use garaga::utils::neg_3;
     use super::{vk, precomputed_lines, run_GRUMPKIN_HONK_SUMCHECK_SIZE_5_PUB_1_circuit, run_GRUMPKIN_HONK_PREP_MSM_SCALARS_SIZE_5_circuit, run_BN254_EVAL_FN_CHALLENGE_SING_41P_RLC_circuit};
     use garaga::utils::noir::{HonkProof, G2_POINT_KZG_1, G2_POINT_KZG_2};
-    use garaga::utils::noir::honk_transcript::{Point256IntoCircuitPoint, KeccakHasherState};
+    use garaga::utils::noir::honk_transcript::{Point256IntoCircuitPoint, StarknetHasherState};
     use garaga::utils::noir::honk_transcript::{HonkTranscriptTrait, BATCHED_RELATION_PARTIAL_LENGTH};
     use garaga::core::circuit::{U32IntoU384, U64IntoU384, into_u256_unchecked};
     use core::num::traits::Zero;
@@ -37,12 +37,13 @@ pub mod UltraKeccakHonkVerifier {
         kzg_hint:MPCheckHintBN254,
     }
 
-    #[embeddable_as(UltraKeccakHonkVerifier)]
-    pub impl IUltraKeccakHonkVerifierImpl<
+    #[embeddable_as(UltraStarknetHonkVerifier)]
+    pub impl IUltraStarknetHonkVerifierImpl<
         TContractState, +HasComponent<TContractState>,
-    > of super::IUltraKeccakHonkVerifier<ComponentState<TContractState>> {
-        fn verify_ultra_keccak_honk_proof(
-            self: @ComponentState<TContractState>, full_proof_with_hints: Span<felt252>,
+    > of super::IUltraStarknetHonkVerifier<ComponentState<TContractState>> {
+        fn verify_ultra_starknet_honk_proof(
+            self: @ComponentState<TContractState>,
+            full_proof_with_hints: Span<felt252>,
         ) -> Option<Span<u256>> {
             // DO NOT EDIT THIS FUNCTION UNLESS YOU KNOW WHAT YOU ARE DOING.
             // This function returns an Option for the public inputs if the proof is valid.
@@ -51,7 +52,7 @@ pub mod UltraKeccakHonkVerifier {
             let mut full_proof_with_hints = full_proof_with_hints;
             let full_proof = Serde::<FullProof>::deserialize(ref full_proof_with_hints).expect('deserialization failed');
 
-            let (transcript, base_rlc) = HonkTranscriptTrait::from_proof::<KeccakHasherState>(vk.circuit_size, vk.public_inputs_size, vk.public_inputs_offset, full_proof.proof);
+            let (transcript, base_rlc) = HonkTranscriptTrait::from_proof::<StarknetHasherState>(vk.circuit_size, vk.public_inputs_size, vk.public_inputs_offset, full_proof.proof);
             let log_n = vk.log_circuit_size;
             let (sum_check_rlc, honk_check) = run_GRUMPKIN_HONK_SUMCHECK_SIZE_5_PUB_1_circuit(
                 p_public_inputs: full_proof.proof.public_inputs,

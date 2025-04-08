@@ -1,3 +1,5 @@
+BB_PATH=../aztec-packages/barretenberg/cpp/build/bin/bb
+
 install-noir:
 	curl -L https://raw.githubusercontent.com/noir-lang/noirup/refs/heads/main/install | bash
 	noirup --version 1.0.0-beta.2
@@ -23,11 +25,20 @@ build-circuit:
 	cp ./circuit/target/proof_of_invite.json ./app/src/circuit/proof_of_invite.json
 
 gen-vk:
-	bb write_vk --scheme ultra_honk --oracle_hash keccak -b ./circuit/target/proof_of_invite.json -o ./circuit/target
+	$(BB_PATH) write_vk --scheme ultra_honk --oracle_hash starknet -b ./circuit/target/proof_of_invite.json -o ./circuit/target
 	cp ./circuit/target/vk ./app/public/vk.bin
 
 gen-contract:
-	garaga gen --system ultra_keccak_honk --vk circuit/target/vk --project-name contract
+	garaga gen --system ultra_starknet_honk --vk circuit/target/vk --project-name contract
+
+execute-circuit:
+	cd circuit && nargo execute witness
+
+prove-circuit:
+	$(BB_PATH) prove --scheme ultra_honk --oracle_hash starknet -b ./circuit/target/proof_of_invite.json -w ./circuit/target/witness -o ./circuit/target
+
+gen-calldata:
+	garaga calldata --system ultra_starknet_honk --proof ./circuit/target/proof --vk ./circuit/target/vk --format starkli > contract/tests/data/calldata.txt
 
 build-contract:
 	cd contract && scarb build
@@ -39,7 +50,7 @@ declare-contract:
 	cd contract && sncast declare --contract-name FaucetAccount
 
 deploy-contract:
-	cd contract && sncast deploy --class-hash 0x008b6d6ea21e3bd2c864ba755a170d5912aff13f0b244e1124c32589cc16a045
+	cd contract && sncast deploy --class-hash 0x03a6a37bbd5e7f6a24556ee706b3f312f50ab12d242528245a7bf2f4a2998813
 
 invoke-contract:
 	python scripts/invoke.py contract/tests/data/calldata.txt 

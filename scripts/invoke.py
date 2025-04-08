@@ -35,7 +35,7 @@ if __name__ == "__main__":
     calldata = [hex(int(felt, 10)) for felt in proof]
     calldata_len = hex(len(calldata))
 
-    address = "0x02ea3a0714d55d378a2da81b29b7e503098cfdc3833e3da96a3f24e4424defae"
+    address = "0x006fa60012327cb1a578b1285fd215a09b51720c9f737be0350d006c6aa3973b"
     tx = {
         "type": "INVOKE",
         "sender_address": address,
