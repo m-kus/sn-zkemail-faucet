@@ -45,7 +45,7 @@ mod FaucetAccount {
             let exec_info = get_execution_info().unbox();
             let tx_info = exec_info.tx_info.unbox();
             //assert_only_protocol(exec_info.caller_address);
-            //assert_invoke_version(tx_info.version);
+            assert_invoke_version(tx_info.version);
 
             assert(calls.len() == 1, 'expected single call');
             let pub_inputs = self

@@ -35,7 +35,7 @@ if __name__ == "__main__":
     calldata = [hex(int(felt, 10)) for felt in proof]
     calldata_len = hex(len(calldata))
 
-    address = "0x077ab94c194f6d7f05803412580b4f7d1912fbddda1f3a52026511276ac2df33"
+    address = "0x02ea3a0714d55d378a2da81b29b7e503098cfdc3833e3da96a3f24e4424defae"
     tx = {
         "type": "INVOKE",
         "sender_address": address,
@@ -52,23 +52,23 @@ if __name__ == "__main__":
         "resource_bounds": {
             "l1_gas": {
                 "max_amount": "0",
-                "max_price_per_unit": "0",
+                "max_price_per_unit": "0x165627f56f0b",
             },
             "l1_data_gas": {
-                "max_amount": "0",
-                "max_price_per_unit": "0",
+                "max_amount": "0x989680",
+                "max_price_per_unit": "0x11ab717a0",
             },
             "l2_gas": {
-                "max_amount": "0",
-                "max_price_per_unit": "0",
+                "max_amount": "0x1dcd6500",
+                "max_price_per_unit": "0x11ab717a0",
             }
         },
         "tip": "0",
         "paymaster_data": [],
         "account_deployment_data": [],
-        "nonce_data_availability_mode": "L2",
-        "fee_data_availability_mode": "L2"
+        "nonce_data_availability_mode": "L1",
+        "fee_data_availability_mode": "L1"
     }
     #print(tx)
     
-    print(estimate_fee(tx))
+    print(invoke(tx))

@@ -39,7 +39,7 @@ declare-contract:
 	cd contract && sncast declare --contract-name FaucetAccount
 
 deploy-contract:
-	cd contract && sncast deploy --class-hash 0x014ab309afb87a9cbbe4838ec28654eade8092a9eab9de54d76aa7705745c873
+	cd contract && sncast deploy --class-hash 0x008b6d6ea21e3bd2c864ba755a170d5912aff13f0b244e1124c32589cc16a045
 
 invoke-contract:
 	python scripts/invoke.py contract/tests/data/calldata.txt 
