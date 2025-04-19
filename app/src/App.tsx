@@ -6,11 +6,10 @@ import { ProofState, ProofStateData } from './types'
 import { Noir } from "@noir-lang/noir_js";
 import { UltraHonkBackend } from "@aztec/bb.js";
 import { flattenFieldsAsArray } from "./helpers/proof";
-import { getHonkCallData, init, poseidonHashBN254 } from 'garaga';
+import { getHonkCallData, init } from 'garaga';
 import { bytecode, abi as circuitAbi } from "./assets/circuit.json";
-import { abi as mainAbi } from "./assets/account.json";
 import vkUrl from './assets/vk.bin?url';
-import { RpcProvider, Contract, WalletAccount } from 'starknet';
+import { RpcProvider, WalletAccount, Account, constants, Call } from 'starknet';
 import { connect } from "@starknet-io/get-starknet"
 import initNoirC from "@noir-lang/noirc_abi";
 import initACVM from "@noir-lang/acvm_js";
@@ -125,8 +124,8 @@ function App() {
       // Generate proof
       updateState(ProofState.GeneratingProof);
 
-      let honk = new UltraHonkBackend(bytecode, { threads: 2 });
-      let proof = await honk.generateProof(execResult.witness, { keccak: true });
+      let honk = new UltraHonkBackend(bytecode, { threads: 4 });
+      let proof = await honk.generateProof(execResult.witness, { starknet: true });
       honk.destroy();
       console.log(proof);
       
@@ -137,7 +136,7 @@ function App() {
         proof.proof,
         flattenFieldsAsArray(proof.publicInputs),
         vk as Uint8Array,
-        0 // HonkFlavor.KECCAK
+        1,  // HonkFlavor.STARKNET
       );
       console.log(callData);
       
@@ -155,16 +154,26 @@ function App() {
         selectedWalletSWO
       );
       console.log(myWalletAccount);
+
       // Send transaction
       updateState(ProofState.SendingTransaction);
 
-      const contractAddress = '0x057b6efdccdebe6288d1bbc90a31ee52dfd1479ec4422f90c3e40c8054062a44';
-      const mainContract = new Contract(mainAbi, contractAddress, myWalletAccount);
+      const contractAddress = '0x07a58e1427928dd2ed47a04ecef4ca0ac8401157cd3e1e9b87f5caf84e1d9c73';
+      const accountContract = new Account(
+        provider,
+        contractAddress,
+        new Uint8Array(),
+        undefined,
+        constants.TRANSACTION_VERSION.V3
+      );
 
-      // Check verification
-      const res = await mainContract.add_solution(callData); // keep the number of elements to pass to the verifier library call
-      await provider.waitForTransaction(res.transaction_hash);
-      console.log(res);
+      const call = {
+        contractAddress: myWalletAccount.address,
+        calldata: callData,
+        entrypoint: "garaga_gud"
+      };
+      const estimateFee = await accountContract.estimateInvokeFee([call as Call]);
+      console.log(estimateFee);
 
       updateState(ProofState.ProofVerified);
     } catch (error) {

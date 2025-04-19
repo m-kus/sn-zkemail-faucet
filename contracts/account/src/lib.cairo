@@ -20,7 +20,7 @@ mod FaucetAccount {
     const TX_V3: felt252 = 3;
     const TX_V3_ESTIMATE: felt252 = 0x100000000000000000000000000000000 + 3; // 2**128 + TX_V3
     /// Declared in Sepolia
-    const VERIFIER_CLASSHASH: felt252 = 0x0328b11e2962fc2605af7fffae908e880df909bc92ebd5f621afc8a05710565b;
+    const VERIFIER_CLASSHASH: felt252 = 0x0250e0ebeaf653883be934cbb0d23f44ff06ee7e292ed46d312cb2c7baea22ee;
 
     #[storage]
     struct Storage {}

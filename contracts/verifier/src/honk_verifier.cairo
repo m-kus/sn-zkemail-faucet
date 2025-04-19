@@ -1,7 +1,7 @@
 use super::honk_verifier_circuits::{
     is_on_curve_bn254, run_BN254_EVAL_FN_CHALLENGE_SING_53P_RLC_circuit,
     run_GRUMPKIN_HONK_PREP_MSM_SCALARS_SIZE_17_circuit,
-    run_GRUMPKIN_HONK_SUMCHECK_SIZE_17_PUB_323_circuit,
+    run_GRUMPKIN_HONK_SUMCHECK_SIZE_17_PUB_339_circuit,
 };
 use super::honk_verifier_constants::{VK_HASH, precomputed_lines, vk};
 
@@ -39,7 +39,7 @@ mod UltraStarknetHonkVerifier {
         VK_HASH, is_on_curve_bn254, precomputed_lines,
         run_BN254_EVAL_FN_CHALLENGE_SING_53P_RLC_circuit,
         run_GRUMPKIN_HONK_PREP_MSM_SCALARS_SIZE_17_circuit,
-        run_GRUMPKIN_HONK_SUMCHECK_SIZE_17_PUB_323_circuit, vk,
+        run_GRUMPKIN_HONK_SUMCHECK_SIZE_17_PUB_339_circuit, vk,
     };
 
     #[storage]
@@ -73,7 +73,7 @@ mod UltraStarknetHonkVerifier {
                 StarknetHasherState,
             >(vk.circuit_size, vk.public_inputs_size, vk.public_inputs_offset, full_proof.proof);
             let log_n = vk.log_circuit_size;
-            let (sum_check_rlc, honk_check) = run_GRUMPKIN_HONK_SUMCHECK_SIZE_17_PUB_323_circuit(
+            let (sum_check_rlc, honk_check) = run_GRUMPKIN_HONK_SUMCHECK_SIZE_17_PUB_339_circuit(
                 p_public_inputs: full_proof.proof.public_inputs,
                 p_pairing_point_object: full_proof.proof.pairing_point_object,
                 p_public_inputs_offset: vk.public_inputs_offset.into(),
