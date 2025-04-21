@@ -34,6 +34,9 @@ exec-circuit:
 prove-circuit:
 	bb prove --scheme ultra_honk --oracle_hash starknet -b ./circuit/target/circuit.json -w ./circuit/target/witness.gz -o ./circuit/target
 
+verify-proof:
+	bb verify -d --scheme ultra_honk --oracle_hash starknet -k ./circuit/target/vk -p ./circuit/target/proof -i ./circuit/target/public_inputs
+
 gen-vk:
 	bb write_vk --scheme ultra_honk --oracle_hash starknet -b ./circuit/target/circuit.json -o ./circuit/target
 

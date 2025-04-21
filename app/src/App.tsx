@@ -124,10 +124,16 @@ function App() {
       // Generate proof
       updateState(ProofState.GeneratingProof);
 
-      let honk = new UltraHonkBackend(bytecode, { threads: 4 });
+      let honk = new UltraHonkBackend(bytecode, { threads: 1 });
       let proof = await honk.generateProof(execResult.witness, { starknet: true });
-      honk.destroy();
       console.log(proof);
+
+      let verified = await honk.verifyProof(proof, { starknet: true });
+      if (!verified) {
+        throw new Error('Proof verification failed');
+      }
+
+      honk.destroy();
       
       // Prepare calldata
       updateState(ProofState.PreparingCalldata);
