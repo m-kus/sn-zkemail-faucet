@@ -164,7 +164,7 @@ function App() {
       // Send transaction
       updateState(ProofState.SendingTransaction);
 
-      const contractAddress = '0x07a58e1427928dd2ed47a04ecef4ca0ac8401157cd3e1e9b87f5caf84e1d9c73';
+      const contractAddress = '0x000f180c4f4a58ab446cb135e2dcde44d312316de86a8a8ab53c54fa4d17512d';
       const accountContract = new Account(
         provider,
         contractAddress,

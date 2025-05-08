@@ -4,11 +4,11 @@
     "": {
       "name": "garaga-scaffold-app",
       "dependencies": {
-        "@aztec/bb.js": "=v0.85.0-nightly.20250419",
+        "@aztec/bb.js": "=v0.86.0-starknet.1",
         "@noir-lang/noir_js": "=1.0.0-beta.3",
         "@starknet-io/get-starknet": "^4.0.7",
         "@zk-email/zkemail-nr": "^1.3.1",
-        "garaga": "=0.17.0",
+        "garaga": "=0.18.0",
         "react": "^19.0.0",
         "react-dom": "^19.0.0",
         "react-dropzone": "^14.3.8",
@@ -34,7 +34,7 @@
   "packages": {
     "@ampproject/remapping": ["@ampproject/remapping@2.3.0", "", { "dependencies": { "@jridgewell/gen-mapping": "^0.3.5", "@jridgewell/trace-mapping": "^0.3.24" } }, "sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw=="],
 
-    "@aztec/bb.js": ["@aztec/bb.js@0.85.0-nightly.20250419", "", { "dependencies": { "comlink": "^4.4.1", "commander": "^12.1.0", "debug": "^4.3.4", "fflate": "^0.8.0", "pako": "^2.1.0", "tslib": "^2.4.0" }, "bin": { "bb.js": "dest/node/main.js" } }, "sha512-F1lfz8Xn3qOMvC9ifrIiqu4Im71a7AYN8aw3ul56j/GGCwrlKrBn9+ERSDnEqOKxw8jpL2pvpWgpp9JrpPgQ0g=="],
+    "@aztec/bb.js": ["@aztec/bb.js@0.86.0-starknet.1", "", { "dependencies": { "comlink": "^4.4.1", "commander": "^12.1.0", "debug": "^4.3.4", "fflate": "^0.8.0", "pako": "^2.1.0", "tslib": "^2.4.0" }, "bin": { "bb.js": "dest/node/main.js" } }, "sha512-GRn63PNQW73bcwyldMqBsFsgq/k4u7uqbkKu+trLXV0/fbeaZhK6QpZqta3RSq4yKhIHdMyA28CXKynQrzy6Gg=="],
 
     "@babel/code-frame": ["@babel/code-frame@7.26.2", "", { "dependencies": { "@babel/helper-validator-identifier": "^7.25.9", "js-tokens": "^4.0.0", "picocolors": "^1.0.0" } }, "sha512-RJlIHRueQgwWitWgF8OdFYGZX328Ax5BCemNGlqHfplnRT9ESi8JkFlvaVYbS+UubVY6dpv87Fs2u5M29iNFVQ=="],
 
@@ -590,7 +590,7 @@
 
     "function-bind": ["function-bind@1.1.2", "", {}, "sha512-7XHNxH7qX9xG5mIwxkhumTox/MIRNcOgDrxWsMt2pAr23WHp6MrRlN7FBSFpCpr+oVO0F744iUgR82nJMfG2SA=="],
 
-    "garaga": ["garaga@0.17.0", "", {}, "sha512-mJ42o08Z9rX+ly354qNHXDvdtcwG5JqJzWT8kLbWhfJgCcOqoE2wO47HeVO1bMyKLC8P8VUcP7Lbzxc+gUYNpg=="],
+    "garaga": ["garaga@0.18.0", "", {}, "sha512-LUhLp5GCvUgbtGx+81/o6sL14Be6HaNfQBihlAfms72q2bhdpUM3mVxZ7tvHXIhoGCX9L7krnSwh1wwEPp7fqw=="],
 
     "gensync": ["gensync@1.0.0-beta.2", "", {}, "sha512-3hN7NaskYvMDLQY55gnW3NQ+mesEAepTqlg+VEbj7zzqEMBVNhzcGYYeqFo/TlYz6eQiFcp1HcsCZO+nGgS8zg=="],
 

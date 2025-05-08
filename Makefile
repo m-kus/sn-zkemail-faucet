@@ -7,7 +7,7 @@ install-noir:
 
 install-barretenberg:
 	curl -L https://raw.githubusercontent.com/AztecProtocol/aztec-packages/refs/heads/master/barretenberg/bbup/install | bash
-	bbup --version 0.85.0-nightly.20250419
+	bbup --version 0.86.0-starknet.1
 
 install-starknet:
 	curl --proto '=https' --tlsv1.2 -sSf https://sh.starkup.dev | sh
@@ -17,7 +17,10 @@ install-devnet:
 	asdf install starknet-devnet 0.3.0
 
 install-garaga:
-	pip install garaga==0.17.0
+	pip install garaga==0.18.0
+
+install-app-deps:
+	cd app && bun install
 
 devnet:
 	starknet-devnet --accounts=2 --seed=0 --initial-balance=100000000000000000000000
@@ -32,7 +35,7 @@ exec-circuit:
 	cd circuit && nargo execute witness
 
 prove-circuit:
-	bb prove --scheme ultra_honk --oracle_hash starknet -b ./circuit/target/circuit.json -w ./circuit/target/witness.gz -o ./circuit/target
+	bb prove --debug_logging --scheme ultra_honk --oracle_hash starknet -b ./circuit/target/circuit.json -w ./circuit/target/witness.gz -o ./circuit/target
 
 verify-proof:
 	bb verify -d --scheme ultra_honk --oracle_hash starknet -k ./circuit/target/vk -p ./circuit/target/proof -i ./circuit/target/public_inputs
@@ -51,7 +54,7 @@ declare-verifier:
 
 deploy-verifier:
 	# TODO: use class hash from the result of the `make declare-verifier` step
-	cd contracts && sncast deploy --class-hash 0x0250e0ebeaf653883be934cbb0d23f44ff06ee7e292ed46d312cb2c7baea22ee
+	cd contracts && sncast deploy --class-hash 0x020e1a52cbb055d740f6ef67728b8a99cedd40edbbf1f5c3bd1635e209227048
 
 test-account:
 	cd contracts/account && snforge test --detailed-resources
@@ -61,7 +64,7 @@ declare-account:
 
 deploy-account:
 	# TODO: use class hash from the result of the `make declare-account` step
-	cd contracts && sncast deploy --class-hash 0x03efd13d43fcf7d6b934ea08eeea9c77022726e2760b78d762056ad3598c7444
+	cd contracts && sncast deploy --class-hash 0x073638a1b245494f8824f1e016e7b3db64072a8f151c64218bc43bb0eaae8819
 
 invoke-account:
 	python scripts/invoke.py contracts/account/tests/data/calldata.txt 
