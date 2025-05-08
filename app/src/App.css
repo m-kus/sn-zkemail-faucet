@@ -1,54 +1,205 @@
-.App {
-  max-width: 900px;
+#root {
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 20px;
-  background-color: white;
+  padding: 2rem;
+  text-align: center;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.state-machine {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  padding: 1.5rem;
+  background-color: #1a1a1a;
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.App-header {
-  margin-bottom: 20px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #eee;
-  text-align: center;
+.state-indicator {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem;
+  border-radius: 6px;
+  transition: all 0.3s ease;
 }
 
-.App-header h1 {
-  color: #333;
-  margin-bottom: 10px;
+.state-indicator.active {
+  background-color: rgba(25, 118, 210, 0.1);
 }
 
-.App-header p {
-  color: #666;
-  margin: 0;
+.state-indicator.error {
+  background-color: rgba(211, 47, 47, 0.1);
 }
 
-.browser-notice {
-  margin-top: 10px;
-  font-size: 0.85rem;
-  color: #888;
-  font-style: italic;
+.state-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: #444;
+  transition: all 0.3s ease;
 }
 
-main {
-  padding: 20px 0;
+.state-indicator.pending .state-dot {
+  background-color: #555;
 }
 
-.App-footer {
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: 1px solid #eee;
-  text-align: center;
+.state-indicator.active .state-dot {
+  background-color: #1976d2;
+  box-shadow: 0 0 0 4px rgba(25, 118, 210, 0.3);
+  animation: pulsate 1s infinite;
+}
+
+.state-indicator.completed .state-dot {
+  background-color: #4caf50;
+}
+
+.state-indicator.error .state-dot {
+  background-color: #d32f2f;
+  box-shadow: 0 0 0 4px rgba(211, 47, 47, 0.3);
+}
+
+.state-label {
+  font-weight: 500;
+  font-size: 1rem;
+  color: #fff;
+}
+
+.error-message {
+  padding: 1rem;
+  background-color: rgba(211, 47, 47, 0.1);
+  border: 1px solid #d32f2f;
+  border-radius: 8px;
+  color: #d32f2f;
   font-size: 0.9rem;
-  color: #666;
+  width: 100%;
+  text-align: left;
 }
 
-.App-footer a {
-  color: #2196F3;
-  text-decoration: none;
+.controls {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
-.App-footer a:hover {
-  text-decoration: underline;
-} 
+button {
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 0.6em 1.2em;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.primary-button {
+  background-color: #1976d2;
+  color: white;
+}
+
+.primary-button:hover {
+  background-color: #1565c0;
+}
+
+.reset-button {
+  background-color: #424242;
+  color: white;
+}
+
+.reset-button:hover {
+  background-color: #303030;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+@keyframes pulsate {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.dropzone {
+  padding: 30px;
+  border: 2px dashed #555;
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: #2a2a2a;
+  color: #ddd;
+}
+
+.dropzone.active {
+  border-color: #4caf50;
+  background-color: rgba(76, 175, 80, 0.1);
+}
+
+.dropzone.with-data {
+  border-color: #4caf50;
+  background-color: rgba(76, 175, 80, 0.1);
+}
+
+.dropzone-content p {
+  margin: 0;
+  color: #ddd;
+  font-size: 16px;
+}

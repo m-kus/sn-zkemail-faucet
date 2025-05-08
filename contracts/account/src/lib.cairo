@@ -15,43 +15,35 @@ mod FaucetAccount {
     use core::num::traits::Zero;
     use starknet::account::Call;
     use starknet::contract_address::ContractAddress;
-    use starknet::{TxInfo, get_execution_info};
-    use crate::honk_verifier::UltraKeccakHonkVerifier;
+    use starknet::{syscalls, SyscallResultTrait, get_execution_info};
 
-    const TX_V1: felt252 = 1; // INVOKE
-    const TX_V1_ESTIMATE: felt252 = 0x100000000000000000000000000000000 + 1; // 2**128 + TX_V1
     const TX_V3: felt252 = 3;
     const TX_V3_ESTIMATE: felt252 = 0x100000000000000000000000000000000 + 3; // 2**128 + TX_V3
-
-    component!(path: UltraKeccakHonkVerifier, storage: verifier, event: VerifierEvent);
-
-    impl VerifierImpl = UltraKeccakHonkVerifier::IUltraKeccakHonkVerifierImpl<ContractState>;
+    /// Declared in Sepolia
+    const VERIFIER_CLASSHASH: felt252 = 0x020e1a52cbb055d740f6ef67728b8a99cedd40edbbf1f5c3bd1635e209227048;
 
     #[storage]
-    struct Storage {
-        #[substorage(v0)]
-        verifier: UltraKeccakHonkVerifier::Storage,
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        VerifierEvent: UltraKeccakHonkVerifier::Event,
-    }
+    struct Storage {}
 
     #[abi(embed_v0)]
     impl FaucetAccountImpl of super::IAccount<ContractState> {
         fn __validate__(ref self: ContractState, calls: Array<Call>) -> felt252 {
             let exec_info = get_execution_info().unbox();
             let tx_info = exec_info.tx_info.unbox();
+            assert_invoke_version(tx_info.version);
             //assert_only_protocol(exec_info.caller_address);
-            //assert_invoke_version(tx_info.version);
+
+            let full_proof_with_hints = *calls[0].calldata;
 
             assert(calls.len() == 1, 'expected single call');
-            let pub_inputs = self
-                .verifier
-                .verify_ultra_keccak_honk_proof(*calls[0].calldata)
-                .expect('invalid proof');
+            let mut res = syscalls::library_call_syscall(
+                VERIFIER_CLASSHASH.try_into().unwrap(),
+                selector!("verify_ultra_starknet_honk_proof"),
+                full_proof_with_hints
+            )
+                .unwrap_syscall();
+            let _public_inputs = Serde::<Option<Span<u256>>>::deserialize(ref res).unwrap().expect('Proof is invalid');
+
             // TODO: assert single call, verify the proof, check the nullifier
 
             starknet::VALIDATED
@@ -60,8 +52,8 @@ mod FaucetAccount {
         fn __execute__(ref self: ContractState, calls: Array<Call>) -> Array<Span<felt252>> {
             let exec_info = get_execution_info().unbox();
             let tx_info = exec_info.tx_info.unbox();
-            assert_only_protocol(exec_info.caller_address);
             assert_invoke_version(tx_info.version);
+            assert_only_protocol(exec_info.caller_address);
 
             // TODO: send the funds, store the nullifier
 
@@ -84,11 +76,8 @@ mod FaucetAccount {
 
     fn assert_invoke_version(tx_version: felt252) {
         assert(
-            tx_version == TX_V1
-                || tx_version == TX_V3
-                || tx_version == TX_V1_ESTIMATE
-                || tx_version == TX_V3_ESTIMATE,
-            'unexpected tx version',
+            tx_version == TX_V3 || tx_version == TX_V3_ESTIMATE,
+            'expected invoke v3 version',
         );
     }
 }

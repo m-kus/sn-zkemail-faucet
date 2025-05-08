@@ -1,8 +1,8 @@
 [package]
-name = "proof_of_invite"
+name = "circuit"
 type = "bin"
 authors = []
 compiler_version = ">=1.0.0"
 
 [dependencies]
-zkemail = { tag = "v0.4.2", git = "https://github.com/zkemail/zkemail.nr", directory = "lib" }
+zkemail = { tag = "chore/update-dependencies", git = "https://github.com/zkemail/zkemail.nr", directory = "lib" }
