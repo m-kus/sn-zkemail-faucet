@@ -124,7 +124,7 @@ function App() {
       // Generate proof
       updateState(ProofState.GeneratingProof);
 
-      let honk = new UltraHonkBackend(bytecode, { threads: 1 });
+      let honk = new UltraHonkBackend(bytecode, { threads: 1, logger: console.log });
       let proof = await honk.generateProof(execResult.witness, { starknet: true });
       console.log(proof);
 

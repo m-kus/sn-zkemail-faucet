@@ -18,6 +18,7 @@ export default defineConfig({
         'timers',
         'tty',
         'util',
+        'vm',
       ],
     }),
   ],
