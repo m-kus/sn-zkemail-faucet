@@ -124,14 +124,14 @@ function App() {
       // Generate proof
       updateState(ProofState.GeneratingProof);
 
-      let honk = new UltraHonkBackend(bytecode, { threads: 1, logger: console.log });
+      let honk = new UltraHonkBackend(bytecode, { threads: 2, logger: console.log });
       let proof = await honk.generateProof(execResult.witness, { starknet: true });
       console.log(proof);
 
-      let verified = await honk.verifyProof(proof, { starknet: true });
-      if (!verified) {
-        throw new Error('Proof verification failed');
-      }
+      // let verified = await honk.verifyProof(proof, { starknet: true });
+      // if (!verified) {
+      //   throw new Error('Proof verification failed');
+      // }
 
       honk.destroy();
       
@@ -185,7 +185,7 @@ function App() {
     } catch (error) {
       handleError(error);
     }
-  }, []);
+  }, [vk]);
 
   const renderStateIndicator = (state: ProofState, current: ProofState) => {
     let status = 'pending';
