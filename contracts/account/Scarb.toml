@@ -13,7 +13,11 @@ inlining-strategy = 2
 [dev-dependencies]
 cairo_test = "2.11.4"
 snforge_std = { git = "https://github.com/foundry-rs/starknet-foundry", tag = "v0.40.0" }
+verifier = { path = "../verifier" }
 
 [[target.starknet-contract]]
 casm = true
 casm-add-pythonic-hints = true
+build-external-contracts = [
+    "verifier::honk_verifier::UltraStarknetHonkVerifier",
+]

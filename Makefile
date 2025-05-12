@@ -34,6 +34,9 @@ build-circuit:
 exec-circuit:
 	cd circuit && nargo execute witness
 
+describe-circuit:
+	bb gates --scheme ultra_honk -b ./circuit/target/circuit.json
+
 prove-circuit:
 	bb prove --debug_logging --scheme ultra_honk --oracle_hash starknet -b ./circuit/target/circuit.json -w ./circuit/target/witness.gz -o ./circuit/target
 
@@ -44,7 +47,7 @@ calldata:
 	garaga calldata --system ultra_starknet_honk --proof circuit/target/proof --vk circuit/target/vk --public-inputs circuit/target/public_inputs
 
 gen-vk:
-	bb write_vk --scheme ultra_honk --oracle_hash starknet -b ./circuit/target/circuit.json -o ./circuit/target
+	bb write_vk --debug_logging --scheme ultra_honk --oracle_hash starknet -b ./circuit/target/circuit.json -o ./circuit/target
 
 gen-verifier:
 	cd contracts && garaga gen --system ultra_starknet_honk --vk ../circuit/target/vk --project-name verifier

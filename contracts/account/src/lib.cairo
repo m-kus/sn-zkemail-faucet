@@ -92,6 +92,8 @@ mod tests {
 
     #[test]
     fn test_validate() {
+        let _ = declare("UltraStarknetHonkVerifier").unwrap();
+
         let contract: ContractClass = match declare("FaucetAccount").unwrap() {
             DeclareResult::Success(contract) => contract,
             DeclareResult::AlreadyDeclared(contract) => contract,
